@@ -250,35 +250,6 @@ matmul_sse()
 static void
 matmul_sse()
 {
-        int i, j, k;
-
-        __m128 vecReg;
-        __m128 matrixvecReg;
-        __m128 vecRes;
-        __m128 matvecRes;
-
-        /* Assume that the data size is an even multiple of the 128 bit
-         * SSE vectors (i.e. 4 floats) */
-        assert(!(SIZE & 0x3));
-        __m128 zero =  _mm_setzero_ps();
-
-        for (i = 0; i < SIZE; i++)
-        {
-          for (k = 0, k < SIZE; k++)
-          {
-            __m128 some = _mm_setzero_ps();
-            for (j = 0; j < SIZE; j++)
-            {
-              vecReg = _mm_load_ps(&mat_a[i][j]);
-              matrixvecReg = _mm_load_ps(&mat_b[k][j]);
-              __m128 out = _mm_mul_ps(vecReg, matrixvecReg);
-              ack = _mm_add_ps(ack, out);
-            }
-            __m128 res = _mm_hadd_ps(_mm_hadd_ps(ack, empty), empty);
-            mat_c[i][k] = _mm_cvtss_f32(res);
-          }
-
-        }
 
         /* TASK: Implement your simple matrix multiplication using SSE
          * here.

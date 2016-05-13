@@ -29,11 +29,11 @@
 
 #define MINDEX(n, m) (((n) << SIZE2) | (m))
 
-#define XMM_ALIGNMENT_BYTES 16
+#define XMM_ALIGNMENT_BYTES 16 
 
 static float *mat_a __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float *vec_b __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
-static float *vec_c __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
+static float *vec_c __attribute__((aligned (XMM_ALIGNMENT            _BYTES)));
 static float *vec_ref __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 
 static void
@@ -56,6 +56,18 @@ matvec_sse()
          * HINT: You can create the sum of all elements in a vector
          * using two hadd instructions.
          */
+        __m128 vec;
+        __m128 row;
+        volatile __m128 zero = _mm_setzero_ps();
+        for(int i = 0; i < SIZE; i++) // Row
+        {
+            for(int j = 0; j < SIZE; j+=4) // Column
+            {
+                
+            }
+            vec_c[i] = 0;
+        }
+        
 }
 
 /**
@@ -130,6 +142,15 @@ run_multiply()
         struct timespec ts_start, ts_stop;
         double runtime_ref, runtime_sse;
 
+
+        printf("Starting reference run...\n");
+        util_monotonic_time(&ts_start);
+        matvec_ref();
+        util_monotonic_time(&ts_stop);
+        runtime_ref = util_time_diff(&ts_start, &ts_stop);
+        printf("Reference run completed in %.2f s\n",
+               runtime_ref);
+        
         printf("Starting SSE run...\n");
         util_monotonic_time(&ts_start);
         /* vec_c = mat_a * vec_b */
@@ -138,14 +159,6 @@ run_multiply()
         runtime_sse = util_time_diff(&ts_start, &ts_stop);
         printf("SSE run completed in %.2f s\n",
                runtime_sse);
-
-        printf("Starting reference run...\n");
-        util_monotonic_time(&ts_start);
-	matvec_ref();
-        util_monotonic_time(&ts_stop);
-        runtime_ref = util_time_diff(&ts_start, &ts_stop);
-        printf("Reference run completed in %.2f s\n",
-               runtime_ref);
 
         printf("Speedup: %.2f\n",
                runtime_ref / runtime_sse);
@@ -162,7 +175,6 @@ main(int argc, char *argv[])
 {
         /* Initialize the matrices with some "random" data. */
         init();
-
         run_multiply();
 
         _mm_free(mat_a);

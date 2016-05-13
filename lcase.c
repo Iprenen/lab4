@@ -24,7 +24,7 @@
 #include "util.h"
 
 #define CASE_BIT 0x20
-#define XMM_ALIGNMENT_BYTES 16
+#define XMM_ALIGNMENT_BYTES 16 
 
 /* Use align data if required by the access type */
 #define ALIGN_AS_REQUIRED 1
@@ -72,7 +72,7 @@
 #error Invalid access type
 #endif
 
-#if (ALIGN == ALIGN_UNALIGNED) || \
+#if (ALIGN == ALIGN_UNALIGNED) ||                                       \
         ((ALIGN == ALIGN_AS_REQUIRED) && (ACCESS_TYPE == ACCESS_MOVDQU))
 
 typedef void (* test_function_t)(char *, const char *, size_t);
@@ -85,8 +85,8 @@ my_malloc(size_t size)
         void *p;
         fprintf(stderr, "Allocating %zi bytes of unaligned memory\n", size);
         if (!(p = _mm_malloc(size + 1, XMM_ALIGNMENT_BYTES))) {
-                fprintf(stderr, "Failed to allocate memory.\n");
-                abort();
+            fprintf(stderr, "Failed to allocate memory.\n");
+            abort();
         }
         return (void *)((char *)p + 1);
 }
@@ -109,8 +109,8 @@ my_malloc(size_t size)
         void *p;
         fprintf(stderr, "Allocating %zi bytes of aligned memory\n", size);
         if (!(p = _mm_malloc(size, XMM_ALIGNMENT_BYTES))) {
-                fprintf(stderr, "Failed to allocate memory.\n");
-                abort();
+            fprintf(stderr, "Failed to allocate memory.\n");
+            abort();
         }
         return p;
 }
@@ -137,8 +137,8 @@ lcase_ref_cond(char *restrict dst, const char *restrict src, size_t len)
 {
         const char *cur = src;
         while (cur != src + len) {
-                const char c = *(cur++);
-                *(dst++) = (c >= 'A' && c <= 'Z') ? c | CASE_BIT : c;
+            const char c = *(cur++);
+            *(dst++) = (c >= 'A' && c <= 'Z') ? c | CASE_BIT : c;
         }
 }
 
@@ -159,15 +159,14 @@ lcase_sse_simple(char *restrict dst, const char *restrict src, size_t len)
          *  - _mm_set1_epi8
          *  - _mm_or_si128 (the por instruction)
          */
-
-         __m128i lv = _mm_set1_epi8(char(0x20));
-         __m128i v = _mm_loadu_si128((__m128i *)(src));
-
-
-
-
-
-
+        __m128i or = _mm_set1_epi8((char)0x20);
+        __m128i v;
+        for(int cur = 0; cur < len; cur+=16 )
+        {
+            v = _mm_loadu_si128((__m128i*)(src+cur));
+            v = _mm_or_si128(v,or);
+            _mm_storeu_si128((__m128i*)(dst+cur), v);
+        }
 }
 
 static void
@@ -185,6 +184,24 @@ lcase_sse_cond(char *restrict dst, const char *restrict src, size_t len)
          *  - _mm_cmpgt_epi8 (the pcmpgtb instruction)
          *  - _mm_and_si128 (the pand instruction)
          */
+        __m128i upper = _mm_set1_epi8('Z'+1);
+        __m128i lower = _mm_set1_epi8('A'-1);
+        __m128i or = _mm_set1_epi8((char)0x20);
+        __m128i maskedor;
+        __m128i v;
+        __m128i uppermask;
+        __m128i lowermask;
+        __m128i mask;
+        for(int cur = 0; cur < len; cur+=16 )
+        {
+            v = _mm_loadu_si128((__m128i*)(src+cur));
+            lowermask = _mm_cmpgt_epi8(v, lower);
+            uppermask = _mm_cmpgt_epi8(upper, v);
+            mask = _mm_and_si128(uppermask, lowermask);
+            maskedor = _mm_and_si128(mask, or);
+            v = _mm_or_si128(v, maskedor);
+            _mm_storeu_si128((__m128i*)(dst+cur), v);            
+        }
 }
 
 static char *
@@ -232,7 +249,6 @@ run_tests(const char *restrict in, size_t len,
 
         printf("Speedup: %.2f\n",
                runtime_ref / runtime_sse);
-
         if (memcmp(ref_area, test_area, len))
                 printf("Error: Reference run and SSE run produce inconsistent results.\n");
         else
@@ -244,7 +260,6 @@ main(int argc, char *argv[])
 {
         char *in, *out, *ref;
         size_t len = 512 * (1 << 20);
-
         printf("Generating test data...\n");
         in = generate_test_data(len);
         out = my_malloc(len);
