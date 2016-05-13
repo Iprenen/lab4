@@ -256,8 +256,6 @@ matmul_sse()
 
   __m128 vecReg;
   __m128 matrixVecReg;
-  __m128 vecSum;
-  __m128 matVecSum;
   __m128 acc;
   __m128 out;
   /* Assume that the data size is an even multiple of the 128 bit
@@ -266,7 +264,7 @@ matmul_sse()
   //Initate transposed B
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-        mat_Tb[j][i] = mat_b[i][j]; //(((i << 1) + (j >> 1)) & 0x0F) * 0x1P-4F;
+        mat_Tb[j][i] = mat_b[i][j];
     }
   }
   __m128 empty = _mm_setzero_ps();
@@ -275,13 +273,13 @@ matmul_sse()
     for (k = 0; k < SIZE; k++) { //row input
       acc = _mm_setzero_ps();
         for (j = 0; j < SIZE; j += 4) { // Column
-            vecReg = _mm_load_ps(&mat_a[i][j]); //
-            matrixVecReg = _mm_load_ps(&mat_Tb[k][j]);
-            out = _mm_mul_ps(vecReg, matrixVecReg);
-            acc = _mm_add_ps(acc, out);
+            vecReg = _mm_load_ps(&mat_a[i][j]); //Load row in A
+            matrixVecReg = _mm_load_ps(&mat_Tb[k][j]); //Load row in transposed B
+            out = _mm_mul_ps(vecReg, matrixVecReg); //Multiply them
+            acc = _mm_add_ps(acc, out); //add result to acc
         }
-        acc = _mm_hadd_ps(_mm_hadd_ps(acc, empty), empty);
-        mat_c[i][k] = _mm_cvtss_f32(acc);
+        acc = _mm_hadd_ps(_mm_hadd_ps(acc, empty), empty); //add horisontal sum
+        mat_c[i][k] = _mm_cvtss_f32(acc); //write to c
     }
   }
 
