@@ -57,7 +57,7 @@
 #endif
 
 
-#define XMM_ALIGNMENT_BYTES 16 
+#define XMM_ALIGNMENT_BYTES 16
 
 static float mat_a[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float mat_b[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
@@ -92,25 +92,25 @@ matmul_block_sse(int i, int j, int k)
 static inline void
 matmul_block_sse(int i, int j, int k)
 {
-        mat_c[i][j] += 
+        mat_c[i][j] +=
                 mat_a[i][k] * mat_b[k][j]
                 + mat_a[i][k + 1] * mat_b[k + 1][j]
                 + mat_a[i][k + 2] * mat_b[k + 2][j]
                 + mat_a[i][k + 3] * mat_b[k + 3][j];
 
-        mat_c[i][j + 1] += 
+        mat_c[i][j + 1] +=
                 mat_a[i][k] * mat_b[k][j + 1]
                 + mat_a[i][k + 1] * mat_b[k + 1][j + 1]
                 + mat_a[i][k + 2] * mat_b[k + 2][j + 1]
                 + mat_a[i][k + 3] * mat_b[k + 3][j + 1];
 
-        mat_c[i][j + 2] += 
+        mat_c[i][j + 2] +=
                 mat_a[i][k] * mat_b[k][j + 2]
                 + mat_a[i][k + 1] * mat_b[k + 1][j + 2]
                 + mat_a[i][k + 2] * mat_b[k + 2][j + 2]
                 + mat_a[i][k + 3] * mat_b[k + 3][j + 2];
 
-        mat_c[i][j + 3] += 
+        mat_c[i][j + 3] +=
                 mat_a[i][k] * mat_b[k][j + 3]
                 + mat_a[i][k + 1] * mat_b[k + 1][j + 3]
                 + mat_a[i][k + 2] * mat_b[k + 2][j + 3]
@@ -118,25 +118,25 @@ matmul_block_sse(int i, int j, int k)
 
 
 
-        mat_c[i + 1][j] += 
+        mat_c[i + 1][j] +=
                 mat_a[i + 1][k] * mat_b[k][j]
                 + mat_a[i + 1][k + 1] * mat_b[k + 1][j]
                 + mat_a[i + 1][k + 2] * mat_b[k + 2][j]
                 + mat_a[i + 1][k + 3] * mat_b[k + 3][j];
 
-        mat_c[i + 1][j + 1] += 
+        mat_c[i + 1][j + 1] +=
                 mat_a[i + 1][k] * mat_b[k][j + 1]
                 + mat_a[i + 1][k + 1] * mat_b[k + 1][j + 1]
                 + mat_a[i + 1][k + 2] * mat_b[k + 2][j + 1]
                 + mat_a[i + 1][k + 3] * mat_b[k + 3][j + 1];
 
-        mat_c[i + 1][j + 2] += 
+        mat_c[i + 1][j + 2] +=
                 mat_a[i + 1][k] * mat_b[k][j + 2]
                 + mat_a[i + 1][k + 1] * mat_b[k + 1][j + 2]
                 + mat_a[i + 1][k + 2] * mat_b[k + 2][j + 2]
                 + mat_a[i + 1][k + 3] * mat_b[k + 3][j + 2];
 
-        mat_c[i + 1][j + 3] += 
+        mat_c[i + 1][j + 3] +=
                 mat_a[i + 1][k] * mat_b[k][j + 3]
                 + mat_a[i + 1][k + 1] * mat_b[k + 1][j + 3]
                 + mat_a[i + 1][k + 2] * mat_b[k + 2][j + 3]
@@ -144,25 +144,25 @@ matmul_block_sse(int i, int j, int k)
 
 
 
-        mat_c[i + 2][j] += 
+        mat_c[i + 2][j] +=
                 mat_a[i + 2][k] * mat_b[k][j]
                 + mat_a[i + 2][k + 1] * mat_b[k + 1][j]
                 + mat_a[i + 2][k + 2] * mat_b[k + 2][j]
                 + mat_a[i + 2][k + 3] * mat_b[k + 3][j];
 
-        mat_c[i + 2][j + 1] += 
+        mat_c[i + 2][j + 1] +=
                 mat_a[i + 2][k] * mat_b[k][j + 1]
                 + mat_a[i + 2][k + 1] * mat_b[k + 1][j + 1]
                 + mat_a[i + 2][k + 2] * mat_b[k + 2][j + 1]
                 + mat_a[i + 2][k + 3] * mat_b[k + 3][j + 1];
 
-        mat_c[i + 2][j + 2] += 
+        mat_c[i + 2][j + 2] +=
                 mat_a[i + 2][k] * mat_b[k][j + 2]
                 + mat_a[i + 2][k + 1] * mat_b[k + 1][j + 2]
                 + mat_a[i + 2][k + 2] * mat_b[k + 2][j + 2]
                 + mat_a[i + 2][k + 3] * mat_b[k + 3][j + 2];
 
-        mat_c[i + 2][j + 3] += 
+        mat_c[i + 2][j + 3] +=
                 mat_a[i + 2][k] * mat_b[k][j + 3]
                 + mat_a[i + 2][k + 1] * mat_b[k + 1][j + 3]
                 + mat_a[i + 2][k + 2] * mat_b[k + 2][j + 3]
@@ -170,25 +170,25 @@ matmul_block_sse(int i, int j, int k)
 
 
 
-        mat_c[i + 3][j] += 
+        mat_c[i + 3][j] +=
                 mat_a[i + 3][k] * mat_b[k][j]
                 + mat_a[i + 3][k + 1] * mat_b[k + 1][j]
                 + mat_a[i + 3][k + 2] * mat_b[k + 2][j]
                 + mat_a[i + 3][k + 3] * mat_b[k + 3][j];
 
-        mat_c[i + 3][j + 1] += 
+        mat_c[i + 3][j + 1] +=
                 mat_a[i + 3][k] * mat_b[k][j + 1]
                 + mat_a[i + 3][k + 1] * mat_b[k + 1][j + 1]
                 + mat_a[i + 3][k + 2] * mat_b[k + 2][j + 1]
                 + mat_a[i + 3][k + 3] * mat_b[k + 3][j + 1];
 
-        mat_c[i + 3][j + 2] += 
+        mat_c[i + 3][j + 2] +=
                 mat_a[i + 3][k] * mat_b[k][j + 2]
                 + mat_a[i + 3][k + 1] * mat_b[k + 1][j + 2]
                 + mat_a[i + 3][k + 2] * mat_b[k + 2][j + 2]
                 + mat_a[i + 3][k + 3] * mat_b[k + 3][j + 2];
 
-        mat_c[i + 3][j + 3] += 
+        mat_c[i + 3][j + 3] +=
                 mat_a[i + 3][k] * mat_b[k][j + 3]
                 + mat_a[i + 3][k + 1] * mat_b[k + 1][j + 3]
                 + mat_a[i + 3][k + 2] * mat_b[k + 2][j + 3]
@@ -252,9 +252,33 @@ matmul_sse()
 {
         int i, j, k;
 
+        __m128 vecReg;
+        __m128 matrixvecReg;
+        __m128 vecRes;
+        __m128 matvecRes;
+
         /* Assume that the data size is an even multiple of the 128 bit
          * SSE vectors (i.e. 4 floats) */
         assert(!(SIZE & 0x3));
+        __m128 zero =  _mm_setzero_ps();
+
+        for (i = 0; i < SIZE; i++)
+        {
+          for (k = 0, k < SIZE; k++)
+          {
+            __m128 some = _mm_setzero_ps();
+            for (j = 0; j < SIZE; j++)
+            {
+              vecReg = _mm_load_ps(&mat_a[i][j]);
+              matrixvecReg = _mm_load_ps(&mat_b[k][j]);
+              __m128 out = _mm_mul_ps(vecReg, matrixvecReg);
+              ack = _mm_add_ps(ack, out);
+            }
+            __m128 res = _mm_hadd_ps(_mm_hadd_ps(ack, empty), empty);
+            mat_c[i][k] = _mm_cvtss_f32(res);
+          }
+
+        }
 
         /* TASK: Implement your simple matrix multiplication using SSE
          * here.

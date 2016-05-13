@@ -24,7 +24,7 @@
 #include "util.h"
 
 #define CASE_BIT 0x20
-#define XMM_ALIGNMENT_BYTES 16 
+#define XMM_ALIGNMENT_BYTES 16
 
 /* Use align data if required by the access type */
 #define ALIGN_AS_REQUIRED 1
@@ -159,6 +159,15 @@ lcase_sse_simple(char *restrict dst, const char *restrict src, size_t len)
          *  - _mm_set1_epi8
          *  - _mm_or_si128 (the por instruction)
          */
+
+         __m128i lv = _mm_set1_epi8(char(0x20));
+         __m128i v = _mm_loadu_si128((__m128i *)(src));
+
+
+
+
+
+
 }
 
 static void
