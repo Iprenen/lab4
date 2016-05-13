@@ -84,6 +84,72 @@ matmul_block_sse(int i, int j, int k)
          * parameter can be used to restrict to which elements the
          * result is stored, all other elements are set to zero.
          */
+
+          __m128 a1, a2, a3, a4;
+          __m128 b1, b2, b3, b4;
+          __m128 c1, c2, c3, c4;
+
+          __m128 mc1, mc2, mc3, mc4;
+           __m128 mc5, mc6, mc7, mc8;
+           __m128 mc9, mc10, mc11, mc12;
+           __m128 mc13, mc14, mc15, mc16;
+           __m128 o1, o2, o3, o4;
+
+
+          a1 = _mm_load_ps(&mat_a[i][k]);
+          a2 = _mm_load_ps(&mat_a[i+1][k]);
+          a3 = _mm_load_ps(&mat_a[i+2][k]);
+          a4 = _mm_load_ps(&mat_a[i+3][k]);
+
+          b1 = _mm_load_ps(&mat_b[k][j]);
+          b2 = _mm_load_ps(&mat_b[k+1][j]);
+          b3 = _mm_load_ps(&mat_b[k+2][j]);
+          b4 = _mm_load_ps(&mat_b[k+3][j]);
+          _MM_TRANSPOSE4_PS(b1,b2,b3,b4);
+
+          c1 = _mm_load_ps(&mat_c[i][j]);
+          c2 = _mm_load_ps(&mat_c[i+1][j]);
+          c3 = _mm_load_ps(&mat_c[i+2][j]);
+          c4 = _mm_load_ps(&mat_c[i+3][j]);
+
+          mc1 = _mm_dp_ps(a1,b1,0xf1);
+          mc2 = _mm_dp_ps(a1,b2,0xf2);
+          mc3 = _mm_dp_ps(a1,b3,0xf4);
+          mc4 = _mm_dp_ps(a1,b4,0xf8);
+
+          or_4_times(&o1,mc1,mc2,mc3,mc4);
+          c1=_mm_add_ps(c1,o1);
+
+          mc5 = _mm_dp_ps(a2,b1,0xf1);
+          mc6 = _mm_dp_ps(a2,b2,0xf2);
+          mc7 = _mm_dp_ps(a2,b3,0xf4);
+          mc8 = _mm_dp_ps(a2,b4,0xf8);
+
+          or_4_times(&o2,mc5,mc6,mc7,mc8);
+          c2=_mm_add_ps(c2,o2);
+
+
+          mc9 = _mm_dp_ps(a3,b1,0xf1);
+          mc10 = _mm_dp_ps(a3,b2,0xf2);
+          mc11 = _mm_dp_ps(a3,b3,0xf4);
+          mc12 = _mm_dp_ps(a3,b4,0xf8);
+
+          or_4_times(&o3,mc9,mc10,mc11,mc12);
+          c3=_mm_add_ps(c3,o3);
+
+          mc13 = _mm_dp_ps(a4,b1,0xf1);
+          mc14 = _mm_dp_ps(a4,b2,0xf2);
+          mc15 = _mm_dp_ps(a4,b3,0xf4);
+          mc16 = _mm_dp_ps(a4,b4,0xf8);
+
+          or_4_times(&o4,mc13,mc14,mc15,mc16);
+          c4=_mm_add_ps(c4,o4);
+          _mm_store_ps(&mat_c[i][j], c1);
+          _mm_store_ps(&mat_c[i+1][j], c2);
+          _mm_store_ps(&mat_c[i+2][j], c3);
+          _mm_store_ps(&mat_c[i+3][j], c4);
+
+
 }
 #elif MODE == MODE_BLOCKED
 /**
