@@ -267,14 +267,14 @@ matmul_sse()
           for (k = 0, k < SIZE; k++)
           {
             __m128 some = _mm_setzero_ps();
-            for (j = 0; j < SIZE; j++)
+            for (j = 0; j < SIZE; j+=4)
             {
               vecReg = _mm_load_ps(&mat_a[i][j]);
               matrixvecReg = _mm_load_ps(&mat_b[k][j]);
               __m128 out = _mm_mul_ps(vecReg, matrixvecReg);
-              ack = _mm_add_ps(ack, out);
+              ack = _mm_add_ps(some, out);
             }
-            __m128 res = _mm_hadd_ps(_mm_hadd_ps(ack, empty), empty);
+            __m128 res = _mm_hadd_ps(_mm_hadd_ps(some, zero), zero);
             mat_c[i][k] = _mm_cvtss_f32(res);
           }
 
