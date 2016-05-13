@@ -281,7 +281,7 @@ matmul_sse()
             acc = _mm_add_ps(acc, out);
         }
         acc = _mm_hadd_ps(_mm_hadd_ps(acc, empty), empty);
-        mat_c[i][k] = _mm_cvtss_f32(res);
+        mat_c[i][k] = _mm_cvtss_f32(acc);
     }
   }
 
