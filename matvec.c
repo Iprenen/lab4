@@ -29,11 +29,11 @@
 
 #define MINDEX(n, m) (((n) << SIZE2) | (m))
 
-#define XMM_ALIGNMENT_BYTES 16 
+#define XMM_ALIGNMENT_BYTES 16
 
 static float *mat_a __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float *vec_b __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
-static float *vec_c __attribute__((aligned (XMM_ALIGNMENT            _BYTES)));
+static float *vec_c __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float *vec_ref __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 
 static void
@@ -59,15 +59,21 @@ matvec_sse()
         __m128 vec;
         __m128 row;
         volatile __m128 zero = _mm_setzero_ps();
+        volatile __m128 acc;
         for(int i = 0; i < SIZE; i++) // Row
         {
+            acc = _mm_setzero_ps();
             for(int j = 0; j < SIZE; j+=4) // Column
             {
-                
+            row = _mm_load_ps(&mat_a[MINDEX(i,j)]);
+            vec = _mm_load_ps(&vec_b[j]);
+            acc = _mm_add_ps(_mm_mul_ps(row, vec), acc);
             }
-            vec_c[i] = 0;
+            acc = _mm_hadd_ps(acc, zero);
+            acc = _mm_hadd_ps(acc, zero);
+            vec_c[i] = _mm_cvtss_f32(acc);
         }
-        
+
 }
 
 /**
@@ -150,7 +156,7 @@ run_multiply()
         runtime_ref = util_time_diff(&ts_start, &ts_stop);
         printf("Reference run completed in %.2f s\n",
                runtime_ref);
-        
+
         printf("Starting SSE run...\n");
         util_monotonic_time(&ts_start);
         /* vec_c = mat_a * vec_b */
