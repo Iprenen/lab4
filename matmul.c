@@ -280,6 +280,7 @@ matmul_sse()
         __m128 res = _mm_hadd_ps(_mm_hadd_ps(ack, empty), empty);
         mat_c[i][k] = _mm_cvtss_f32(res);
     }
+  }
 
 
 }
