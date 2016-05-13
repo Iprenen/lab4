@@ -261,11 +261,11 @@ matmul_sse()
   /* Assume that the data size is an even multiple of the 128 bit
   * SSE vectors (i.e. 4 floats) */
   assert(!(SIZE & 0x3));
-  /*for (i = 0; i < SIZE; i++) {
+  for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
         mat_Tb[j][i] = (((i << 1) + (j >> 1)) & 0x0F) * 0x1P-4F;
     }
-  }*/
+  }
   __m128 empty = _mm_setzero_ps();
 
   for (i = 0; i < SIZE; i++) {
@@ -273,7 +273,7 @@ matmul_sse()
         __m128 ack = _mm_setzero_ps();
         for (j = 0; j < SIZE; j += 4) {
             vecReg = _mm_load_ps(&mat_a[i][j]);
-            matrixVecReg = _mm_load_ps(&mat_b[k][j]);
+            matrixVecReg = _mm_load_ps(&mat_Tb[k][j]);
             __m128 out = _mm_mul_ps(vecReg, matrixVecReg);
             ack = _mm_add_ps(ack, out);
         }
