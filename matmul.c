@@ -63,6 +63,7 @@ static float mat_a[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float mat_b[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float mat_c[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 static float mat_ref[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
+static float mat_Tb[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
 
 #if MODE == MODE_SSE_BLOCKED
 /**
@@ -251,9 +252,36 @@ static void
 matmul_sse()
 {
 
-        /* TASK: Implement your simple matrix multiplication using SSE
-         * here.
-         */
+    int i, j, k;
+
+  __m128 vecReg;
+  __m128 matrixVecReg;
+  __m128 vecSum;
+  __m128 matVecSum;
+  /* Assume that the data size is an even multiple of the 128 bit
+  * SSE vectors (i.e. 4 floats) */
+  assert(!(SIZE & 0x3));
+  /*for (i = 0; i < SIZE; i++) {
+    for (j = 0; j < SIZE; j++) {
+        mat_Tb[j][i] = (((i << 1) + (j >> 1)) & 0x0F) * 0x1P-4F;
+    }
+  }*/
+  __m128 empty = _mm_setzero_ps();
+
+  for (i = 0; i < SIZE; i++) {
+    for (k = 0; k < SIZE; k++) {
+        __m128 ack = _mm_setzero_ps();
+        for (j = 0; j < SIZE; j += 4) {
+            vecReg = _mm_load_ps(&mat_a[i][j]);
+            matrixVecReg = _mm_load_ps(&mat_b[k][j]);
+            __m128 out = _mm_mul_ps(vecReg, matrixVecReg);
+            ack = _mm_add_ps(ack, out);
+        }
+        __m128 res = _mm_hadd_ps(_mm_hadd_ps(ack, empty), empty);
+        mat_c[i][k] = _mm_cvtss_f32(res);
+    }
+
+
 }
 
 #else
