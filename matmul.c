@@ -70,6 +70,13 @@ static float mat_Tb[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
  * Blocked matrix multiplication, SSE block (4x4 matrix). Implement
  * your solution to the bonus assignment here.
  */
+
+static inline void
+or_4_times(__m128* out, __m128 v1,__m128 v2,__m128 v3,__m128 v4){
+    *out=_mm_or_ps(v1,v2);
+    *out=_mm_or_ps(*out,v3);
+    *out=_mm_or_ps(*out,v4);
+}
 static inline void
 matmul_block_sse(int i, int j, int k)
 {
