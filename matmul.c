@@ -339,8 +339,10 @@ matmul_sse()
 
   __m128 vecReg;
   __m128 matrixVecReg;
+  __m128 temp1, temp2, temp3, temp4;
   __m128 acc;
   __m128 out;
+
   /* Assume that the data size is an even multiple of the 128 bit
   * SSE vectors (i.e. 4 floats) */
   assert(!(SIZE & 0x3));
@@ -353,16 +355,25 @@ matmul_sse()
   __m128 empty = _mm_setzero_ps();
 
   for (i = 0; i < SIZE; i++) { //row output
-    for (k = 0; k < SIZE; k++) { //row input
-      acc = _mm_setzero_ps();
-        for (j = 0; j < SIZE; j += 4) { // Column
+    for (j = 0; k < SIZE; j+=4) { //row input
+          acc = _mm_setzero_ps();
+        for (k = 0; k < SIZE; k += 4) { // Column
             vecReg = _mm_load_ps(&mat_a[i][j]); //Load row in A
-            matrixVecReg = _mm_load_ps(&mat_Tb[k][j]); //Load row in transposed B
-            out = _mm_mul_ps(vecReg, matrixVecReg); //Multiply them
+            matrixVecReg1 = _mm_load_ps(&mat_Tb[k][j]); //Load row in transposed B
+            matrixVecReg2 = _mm_load_ps(&mat_Tb[k+1][j]);
+            matrixVecReg3 = _mm_load_ps(&mat_Tb[k+2][j]);
+            matrixVecReg4 = _mm_load_ps(&mat_Tb[k+3][j]);
+            temp1 = _mm_dp_ps(vecReg, matrixVecReg1, 0xf1); //Multiply them
+            temp2 = _mm_dp_ps(vecReg, matrixVecReg2, 0xf2); //Multiply them
+            temp3 = _mm_dp_ps(vecReg, matrixVecReg3, 0xf4); //Multiply them
+            temp4 = _mm_dp_ps(vecReg, matrixVecReg4, 0xf8); //Multiply them
+            temp1 = _mm_or_ps(temp1, temp2);
+            temp1 = _mm_or_ps(temp1, temp3);
+            out = _mm_or_ps(temp1, temp4);
             acc = _mm_add_ps(acc, out); //add result to acc
+
         }
-        acc = _mm_hadd_ps(_mm_hadd_ps(acc, empty), empty); //add horisontal sum
-        mat_c[i][k] = _mm_cvtss_f32(acc); //write to c
+        _mm_store_ps(mat_c[i][j], acc); //write to c
     }
   }
 
