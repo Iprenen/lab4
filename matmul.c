@@ -71,12 +71,7 @@ static float mat_Tb[SIZE][SIZE] __attribute__((aligned (XMM_ALIGNMENT_BYTES)));
  * your solution to the bonus assignment here.
  */
 
-static inline void
-or_4_times(__m128* out, __m128 v1,__m128 v2,__m128 v3,__m128 v4){
-    *out=_mm_or_ps(v1,v2);
-    *out=_mm_or_ps(*out,v3);
-    *out=_mm_or_ps(*out,v4);
-}
+
 static inline void
 matmul_block_sse(int i, int j, int k)
 {
@@ -92,66 +87,80 @@ matmul_block_sse(int i, int j, int k)
          * result is stored, all other elements are set to zero.
          */
 
+          //Init variables needed (load points)
           __m128 a1, a2, a3, a4;
           __m128 b1, b2, b3, b4;
           __m128 c1, c2, c3, c4;
 
-          __m128 mc1, mc2, mc3, mc4;
-           __m128 mc5, mc6, mc7, mc8;
-           __m128 mc9, mc10, mc11, mc12;
-           __m128 mc13, mc14, mc15, mc16;
-           __m128 o1, o2, o3, o4;
+          __m128 mc1, mc2, mc3, mc4; //Temp for matmul part
+          __m128 temp; //Used for storage of values, reused
 
-
+          //Load values from matrix a
           a1 = _mm_load_ps(&mat_a[i][k]);
           a2 = _mm_load_ps(&mat_a[i+1][k]);
           a3 = _mm_load_ps(&mat_a[i+2][k]);
           a4 = _mm_load_ps(&mat_a[i+3][k]);
 
+          //load valus from matrix B and transpose
           b1 = _mm_load_ps(&mat_b[k][j]);
           b2 = _mm_load_ps(&mat_b[k+1][j]);
           b3 = _mm_load_ps(&mat_b[k+2][j]);
           b4 = _mm_load_ps(&mat_b[k+3][j]);
           _MM_TRANSPOSE4_PS(b1,b2,b3,b4);
 
-          __m128 zero = _mm_setzero_ps();
-          /*c1 = _mm_load_ps(&mat_c[i][j]);
+
+          //Load in values from previous iteration
+          c1 = _mm_load_ps(&mat_c[i][j]);
           c2 = _mm_load_ps(&mat_c[i+1][j]);
           c3 = _mm_load_ps(&mat_c[i+2][j]);
-          c4 = _mm_load_ps(&mat_c[i+3][j]);*/
+          c4 = _mm_load_ps(&mat_c[i+3][j]);
 
+
+          //Multiply using dot product instead of _mm_mul_ps
           mc1 = _mm_dp_ps(a1,b1,0xf1);
           mc2 = _mm_dp_ps(a1,b2,0xf2);
           mc3 = _mm_dp_ps(a1,b3,0xf4);
           mc4 = _mm_dp_ps(a1,b4,0xf8);
 
-          or_4_times(&o1,mc1,mc2,mc3,mc4);
-          c1=_mm_add_ps(zero,o1);
+          //Combine results to temp
+          temp =_mm_or_ps(mc1,mc2);
+          temp=_mm_or_ps(temp,mc3);
+          temp=_mm_or_ps(temp,mc4);
+          c1=_mm_add_ps(c1,temp); //Add to c1
 
-          mc5 = _mm_dp_ps(a2,b1,0xf1);
-          mc6 = _mm_dp_ps(a2,b2,0xf2);
-          mc7 = _mm_dp_ps(a2,b3,0xf4);
-          mc8 = _mm_dp_ps(a2,b4,0xf8);
+          //Repeat...
+          mc1 = _mm_dp_ps(a2,b1,0xf1);
+          mc2 = _mm_dp_ps(a2,b2,0xf2);
+          mc3 = _mm_dp_ps(a2,b3,0xf4);
+          mc4 = _mm_dp_ps(a2,b4,0xf8);
 
-          or_4_times(&o2,mc5,mc6,mc7,mc8);
-          c2=_mm_add_ps(zero,o2);
+          temp =_mm_or_ps(mc1,mc2);
+          temp=_mm_or_ps(temp,mc3);
+          temp=_mm_or_ps(temp,mc4);
+          c2=_mm_add_ps(c2,temp);
 
 
-          mc9 = _mm_dp_ps(a3,b1,0xf1);
-          mc10 = _mm_dp_ps(a3,b2,0xf2);
-          mc11 = _mm_dp_ps(a3,b3,0xf4);
-          mc12 = _mm_dp_ps(a3,b4,0xf8);
+          mc1 = _mm_dp_ps(a3,b1,0xf1);
+          mc2 = _mm_dp_ps(a3,b2,0xf2);
+          mc3 = _mm_dp_ps(a3,b3,0xf4);
+          mc4 = _mm_dp_ps(a3,b4,0xf8);
 
-          or_4_times(&o3,mc9,mc10,mc11,mc12);
-          c3=_mm_add_ps(zero,o3);
+          temp =_mm_or_ps(mc1,mc2);
+          temp =_mm_or_ps(temp,mc3);
+          temp =_mm_or_ps(temp,mc4);
+          c3=_mm_add_ps(c3,temp);
 
-          mc13 = _mm_dp_ps(a4,b1,0xf1);
-          mc14 = _mm_dp_ps(a4,b2,0xf2);
-          mc15 = _mm_dp_ps(a4,b3,0xf4);
-          mc16 = _mm_dp_ps(a4,b4,0xf8);
+          mc1 = _mm_dp_ps(a4,b1,0xf1);
+          mc2 = _mm_dp_ps(a4,b2,0xf2);
+          mc3 = _mm_dp_ps(a4,b3,0xf4);
+          mc4 = _mm_dp_ps(a4,b4,0xf8);
 
-          or_4_times(&o4,mc13,mc14,mc15,mc16);
-          c4=_mm_add_ps(zero,o4);
+          temp =_mm_or_ps(mc1,mc2);
+          temp =_mm_or_ps(temp,mc3);
+          temp =_mm_or_ps(temp,mc4);
+          c4 =_mm_add_ps(c4,temp);
+
+          //Store values in their right location
           _mm_store_ps(&mat_c[i][j], c1);
           _mm_store_ps(&mat_c[i+1][j], c2);
           _mm_store_ps(&mat_c[i+2][j], c3);
