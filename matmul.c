@@ -114,10 +114,11 @@ matmul_block_sse(int i, int j, int k)
           b4 = _mm_load_ps(&mat_b[k+3][j]);
           _MM_TRANSPOSE4_PS(b1,b2,b3,b4);
 
-          c1 = _mm_load_ps(&mat_c[i][j]);
+          __m128 zero = _mm_setzero_ps();
+          /*c1 = _mm_load_ps(&mat_c[i][j]);
           c2 = _mm_load_ps(&mat_c[i+1][j]);
           c3 = _mm_load_ps(&mat_c[i+2][j]);
-          c4 = _mm_load_ps(&mat_c[i+3][j]);
+          c4 = _mm_load_ps(&mat_c[i+3][j]);*/
 
           mc1 = _mm_dp_ps(a1,b1,0xf1);
           mc2 = _mm_dp_ps(a1,b2,0xf2);
@@ -125,7 +126,7 @@ matmul_block_sse(int i, int j, int k)
           mc4 = _mm_dp_ps(a1,b4,0xf8);
 
           or_4_times(&o1,mc1,mc2,mc3,mc4);
-          c1=_mm_add_ps(c1,o1);
+          c1=_mm_add_ps(zero,o1);
 
           mc5 = _mm_dp_ps(a2,b1,0xf1);
           mc6 = _mm_dp_ps(a2,b2,0xf2);
@@ -133,7 +134,7 @@ matmul_block_sse(int i, int j, int k)
           mc8 = _mm_dp_ps(a2,b4,0xf8);
 
           or_4_times(&o2,mc5,mc6,mc7,mc8);
-          c2=_mm_add_ps(c2,o2);
+          c2=_mm_add_ps(zero,o2);
 
 
           mc9 = _mm_dp_ps(a3,b1,0xf1);
@@ -142,7 +143,7 @@ matmul_block_sse(int i, int j, int k)
           mc12 = _mm_dp_ps(a3,b4,0xf8);
 
           or_4_times(&o3,mc9,mc10,mc11,mc12);
-          c3=_mm_add_ps(c3,o3);
+          c3=_mm_add_ps(zero,o3);
 
           mc13 = _mm_dp_ps(a4,b1,0xf1);
           mc14 = _mm_dp_ps(a4,b2,0xf2);
