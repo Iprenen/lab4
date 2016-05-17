@@ -63,7 +63,10 @@ matvec_sse()
 
         for(int i = 0; i < SIZE; i+=4) // Row
         {
-            acc = _mm_setzero_ps();
+            acc1 = _mm_setzero_ps();
+            acc2 = _mm_setzero_ps();
+            acc3 = _mm_setzero_ps();
+            acc4 = _mm_setzero_ps();
             for(int j = 0; j < SIZE; j+=4) // Column
             {
             row1 = _mm_load_ps(&mat_a[MINDEX(i,j)]);
