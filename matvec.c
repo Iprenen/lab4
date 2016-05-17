@@ -57,21 +57,37 @@ matvec_sse()
          * using two hadd instructions.
          */
         __m128 vec;
-        __m128 row;
+        __m128 row1, row2, row3, row4;
         volatile __m128 zero = _mm_setzero_ps();
-        volatile __m128 acc;
-        for(int i = 0; i < SIZE; i++) // Row
+        __m128 acc1, acc2, acc3, acc4;
+
+        for(int i = 0; i < SIZE; i+=4) // Row
         {
             acc = _mm_setzero_ps();
             for(int j = 0; j < SIZE; j+=4) // Column
             {
-            row = _mm_load_ps(&mat_a[MINDEX(i,j)]);
+            row1 = _mm_load_ps(&mat_a[MINDEX(i,j)]);
+            row2 = _mm_load_ps(&mat_a[MINDEX(i+1,j)]);
+            row3 = _mm_load_ps(&mat_a[MINDEX(i+2,j)]);
+            row4 = _mm_load_ps(&mat_a[MINDEX(i+3,j)]);
             vec = _mm_load_ps(&vec_b[j]);
-            acc = _mm_add_ps(_mm_mul_ps(row, vec), acc);
+            acc1 = _mm_add_ps(_mm_mul_ps(row1, vec), acc1);
+            acc2 = _mm_add_ps(_mm_mul_ps(row2, vec), acc2);
+            acc3 = _mm_add_ps(_mm_mul_ps(row3, vec), acc3);
+            acc4 = _mm_add_ps(_mm_mul_ps(row4, vec), acc4);
             }
-            acc = _mm_hadd_ps(acc, zero);
-            acc = _mm_hadd_ps(acc, zero);
-            vec_c[i] = _mm_cvtss_f32(acc);
+            acc1 = _mm_hadd_ps(acc1, zero);
+            acc1 = _mm_hadd_ps(acc1, zero);
+            acc2 = _mm_hadd_ps(acc2, zero);
+            acc2 = _mm_hadd_ps(acc2, zero);
+            acc3 = _mm_hadd_ps(acc3, zero);
+            acc3 = _mm_hadd_ps(acc3, zero);
+            acc4 = _mm_hadd_ps(acc4, zero);
+            acc4 = _mm_hadd_ps(acc4, zero);
+            vec_c[i] = _mm_cvtss_f32(acc1);
+            vec_c[i+1] = _mm_cvtss_f32(acc2);
+            vec_c[i+2] = _mm_cvtss_f32(acc3);
+            vec_c[i+3] = _mm_cvtss_f32(acc4);
         }
 
 }
