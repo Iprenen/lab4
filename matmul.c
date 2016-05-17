@@ -151,7 +151,7 @@ matmul_block_sse(int i, int j, int k)
           mc16 = _mm_dp_ps(a4,b4,0xf8);
 
           or_4_times(&o4,mc13,mc14,mc15,mc16);
-          c4=_mm_add_ps(c4,o4);
+          c4=_mm_add_ps(zero,o4);
           _mm_store_ps(&mat_c[i][j], c1);
           _mm_store_ps(&mat_c[i+1][j], c2);
           _mm_store_ps(&mat_c[i+2][j], c3);
