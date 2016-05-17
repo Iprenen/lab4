@@ -338,7 +338,7 @@ matmul_sse()
     int i, j, k;
 
   __m128 vecReg;
-  __m128 matrixVecReg;
+  __m128 matrixVecReg1, matrixVecReg2, matrixVecReg3, matrixVecReg4;
   __m128 temp1, temp2, temp3, temp4;
   __m128 acc;
   __m128 out;
@@ -373,7 +373,7 @@ matmul_sse()
             acc = _mm_add_ps(acc, out); //add result to acc
 
         }
-        _mm_store_ps(mat_c[i][j], acc); //write to c
+        _mm_store_ps(&mat_c[i][j], acc); //write to c
     }
   }
 
